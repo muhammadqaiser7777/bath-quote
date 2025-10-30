@@ -39,6 +39,7 @@ export class Form implements OnInit {
   isValidatingEmail: boolean = false;
   isValidatingZip: boolean = false;
   isValidatingIP: boolean = false;
+  isSubmitting: boolean = false;
   isUSCitizen: boolean = true;
   showThankYou: boolean = false;
   private leadiDPollTimer: any = null;
@@ -168,6 +169,7 @@ export class Form implements OnInit {
     this.fetchIPAddress();
     this.parseUrlParams();
     this.injectTrustedFormPing();
+    this.injectTrustedForm();
   }
 
   fetchIPAddress() {
@@ -466,6 +468,7 @@ export class Form implements OnInit {
   async submit() {
     this.errors = {};
     if (this.validateCurrentStep()) {
+      this.isSubmitting = true;
       // Read values from DOM
       this.universalLeadid = (document.getElementById('leadid_token') as HTMLInputElement)?.value || '';
       this.xxTrustedFormCertUrl = (document.querySelector('input[name="xxTrustedFormCertUrl"]') as HTMLInputElement)?.value || '';
@@ -499,12 +502,14 @@ export class Form implements OnInit {
       };
       this.http.post('https://get-bath.com/api/ping-proxy.php', payload).subscribe({
         next: (response) => {
+          this.isSubmitting = false;
           this.showThankYou = true;
           setTimeout(() => {
             this.router.navigate(['/']);
           }, 3000);
         },
         error: (error) => {
+          this.isSubmitting = false;
           this.errors['general'] = 'Something went wrong, please click submit again.';
         }
       });
@@ -548,7 +553,7 @@ export class Form implements OnInit {
         anchor.parentNode.insertBefore(s, anchor);
       }
 
-      // Poll for value until success
+      // Delay injection by 10 seconds, then poll every 2 seconds until success or submit
       const poll = () => {
         if (this.showThankYou) return;
         const el = document.getElementById('leadid_token') as HTMLInputElement | null;
@@ -556,10 +561,10 @@ export class Form implements OnInit {
         if (val) {
           this.universalLeadid = val;
         } else {
-          this.leadiDPollTimer = setTimeout(poll, 300);
+          this.leadiDPollTimer = setTimeout(poll, 2000);
         }
       };
-      setTimeout(poll, 500);
+      setTimeout(poll, 10000);
     } catch (e) {
       console.error('Failed to inject LeadiD:', e);
     }

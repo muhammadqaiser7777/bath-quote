@@ -1,6 +1,6 @@
 <div class="background"></div>
 <div class="form-container">
-  <form (ngSubmit)="submit()" #f="ngForm">
+  <form (ngSubmit)="submit()" #f="ngForm" (keydown.enter)="$event.preventDefault()">
   <div class="roof-form" [ngClass]="'step-' + currentStep">
     <div class="header">
       <img src="assets/images/form-logo.webp" alt="Form Logo" class="form-logo">
@@ -12,20 +12,16 @@
         <select id="bathtype" [(ngModel)]="bathtype" name="bathtype" required>
           <option value="">Select an option</option>
           <option value="1">BathTub Install</option>
-          <option value="2">BathTub Linear Install</option>
-          <option value="3">Cabinets</option>
-          <option value="4">Counter Tops</option>
-          <option value="5">Full Remodel</option>
-          <option value="6">General Remodeling</option>
-          <option value="7">New Flooring</option>
-          <option value="8">Shower Install</option>
-          <option value="9">Sink Install</option>
-          <option value="10">Toilet Install</option>
-          <option value="11">Walk-In Tub Install</option>
-          <option value="12">Complete Remodel</option>
-          <option value="13">Vanity Install</option>
-          <option value="14">Vanity Repair</option>
-          <option value="15">Other</option>
+          <option value="2">Cabinets</option>
+          <option value="3">Counter Tops</option>
+          <option value="4">New Flooring</option>
+          <option value="5">Shower Install</option>
+          <option value="6">Sink Install</option>
+          <option value="7">Toilet Install</option>
+          <option value="8">Walk-In Tub Install</option>
+          <option value="9">Complete Bathroom Remodel</option>
+          <option value="10">Vanity Install / Repair</option>
+          <option value="11">Other</option>
         </select>
         <div class="error" *ngIf="errors['bathtype']">{{ errors['bathtype'] }}</div>
       </div>
@@ -226,7 +222,10 @@
         <span *ngIf="isValidatingEmail || isValidatingZip || isValidatingIP">Validating...</span>
       </button>
       <button *ngIf="currentStep === totalSteps" type="button" (click)="previousStep()" class="btn-previous">Previous</button>
-      <button *ngIf="currentStep === totalSteps" type="submit" class="btn-submit" [disabled]="!isUSCitizen">Submit</button>
+      <button *ngIf="currentStep === totalSteps" type="submit" class="btn-submit" [disabled]="!isUSCitizen || isSubmitting">
+        <span *ngIf="!isSubmitting">Submit</span>
+        <span *ngIf="isSubmitting">Submitting...</span>
+      </button>
     </div>
   </div>
   </form>
